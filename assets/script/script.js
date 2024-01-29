@@ -1,4 +1,5 @@
 function initPage() {
+    // Getting references to various HTML elements
     const cityEl = document.getElementById("enter-city");
     const searchEl = document.getElementById("search-button");
     const clearEl = document.getElementById("clear-history");
@@ -11,11 +12,12 @@ function initPage() {
     const historyEl = document.getElementById("history");
     var fivedayEl = document.getElementById("fiveday-header");
     var todayweatherEl = document.getElementById("today-weather");
+    // Retrieving search history from local storage, if any
     let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
-
-    // Assigning a unique API to a variable
+  
+     // API key for OpenWeatherMap
     const APIKey = "84b79da5e5d7c92085660485702f4ce8";
-
+// Function to convert temperature from Kelvin to Fahrenheit
     function getWeather(cityName) {
         // Execute a current weather get request from open weather api
         let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIKey;

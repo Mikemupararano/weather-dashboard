@@ -10,20 +10,25 @@ function initPage() {
     const currentWindEl = document.getElementById("wind-speed");
     const currentUVEl = document.getElementById("UV-index");
     const historyEl = document.getElementById("history");
-    var fivedayEl = document.getElementById("fiveday-header");
-    var todayweatherEl = document.getElementById("today-weather");
+    const fivedayEl = document.getElementById("fiveday-header");
+    const todayweatherEl = document.getElementById("today-weather");
     // Retrieving search history from local storage, if any
     let searchHistory = JSON.parse(localStorage.getItem("search")) || [];
-  
-     // API key for OpenWeatherMap
-    const APIKey = "84b79da5e5d7c92085660485702f4ce8";
-// Function to convert temperature from Kelvin to Fahrenheit
+
+    // API key for OpenWeatherMap
+    const APIKey = "16c97824543243c880f37b17a3cab0f4";
+
+    // Function to convert temperature from Kelvin to Celsius
+    function k2c(K) {
+        return Math.floor(K - 273.15);
+    }
+
+    // Function to fetch weather data for a given city
     function getWeather(cityName) {
         // Execute a current weather get request from open weather api
         let queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIKey;
         axios.get(queryURL)
             .then(function (response) {
-
                 todayweatherEl.classList.remove("d-none");
 
                 // Parse response to display current weather
@@ -35,12 +40,10 @@ function initPage() {
                 let weatherPic = response.data.weather[0].icon;
                 currentPicEl.setAttribute("src", "https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
                 currentPicEl.setAttribute("alt", response.data.weather[0].description);
-                //currentTempEl.innerHTML = "Temperature: " + k2f(response.data.main.temp) + " &#176F";
                 currentTempEl.innerHTML = "Temperature: " + k2c(response.data.main.temp) + " &#176C";
-
                 currentHumidityEl.innerHTML = "Humidity: " + response.data.main.humidity + "%";
                 currentWindEl.innerHTML = "Wind Speed: " + response.data.wind.speed + " MPH";
-                
+
                 // Get UV Index
                 let lat = response.data.coord.lat;
                 let lon = response.data.coord.lon;
@@ -48,33 +51,31 @@ function initPage() {
                 axios.get(UVQueryURL)
                     .then(function (response) {
                         let UVIndex = document.createElement("span");
-                        
-                        // When UV Index is good, shows green, when ok shows yellow, when bad shows red
-                        if (response.data[0].value < 4 ) {
+
+                        // Assigning appropriate class based on UV Index value
+                        if (response.data[0].value < 4) {
                             UVIndex.setAttribute("class", "badge badge-success");
-                        }
-                        else if (response.data[0].value < 8) {
+                        } else if (response.data[0].value < 8) {
                             UVIndex.setAttribute("class", "badge badge-warning");
-                        }
-                        else {
+                        } else {
                             UVIndex.setAttribute("class", "badge badge-danger");
                         }
-                        console.log(response.data[0].value)
+
                         UVIndex.innerHTML = response.data[0].value;
                         currentUVEl.innerHTML = "UV Index: ";
                         currentUVEl.append(UVIndex);
                     });
-                
+
                 // Get 5 day forecast for this city
                 let cityID = response.data.id;
                 let forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?id=" + cityID + "&appid=" + APIKey;
                 axios.get(forecastQueryURL)
                     .then(function (response) {
                         fivedayEl.classList.remove("d-none");
-                        
+
                         //  Parse response to display forecast for next 5 days
                         const forecastEls = document.querySelectorAll(".forecast");
-                        for (i = 0; i < forecastEls.length; i++) {
+                        for (let i = 0; i < forecastEls.length; i++) {
                             forecastEls[i].innerHTML = "";
                             const forecastIndex = i * 8 + 4;
                             const forecastDate = new Date(response.data.list[forecastIndex].dt * 1000);
@@ -92,13 +93,16 @@ function initPage() {
                             forecastWeatherEl.setAttribute("alt", response.data.list[forecastIndex].weather[0].description);
                             forecastEls[i].append(forecastWeatherEl);
                             const forecastTempEl = document.createElement("p");
-                            forecastTempEl.innerHTML = "Temp: " + k2f(response.data.list[forecastIndex].main.temp) + " &#176F";
+                            forecastTempEl.innerHTML = "Temp: " + k2c(response.data.list[forecastIndex].main.temp) + " &#176C";
                             forecastEls[i].append(forecastTempEl);
                             const forecastHumidityEl = document.createElement("p");
                             forecastHumidityEl.innerHTML = "Humidity: " + response.data.list[forecastIndex].main.humidity + "%";
                             forecastEls[i].append(forecastHumidityEl);
                         }
                     })
+            })
+            .catch(function (error) {
+                console.log(error); // Log any errors to the console
             });
     }
 
@@ -117,13 +121,6 @@ function initPage() {
         searchHistory = [];
         renderSearchHistory();
     })
-function k2c(K) {
-    return Math.floor(K - 273.15);
-}
-
-    /*function k2f(K) {
-        return Math.floor((K - 273.15) * 1.8 + 32);
-    }*/
 
     function renderSearchHistory() {
         historyEl.innerHTML = "";
@@ -144,7 +141,7 @@ function k2c(K) {
     if (searchHistory.length > 0) {
         getWeather(searchHistory[searchHistory.length - 1]);
     }
-    
+
 }
 
 initPage();

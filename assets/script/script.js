@@ -35,7 +35,9 @@ function initPage() {
                 let weatherPic = response.data.weather[0].icon;
                 currentPicEl.setAttribute("src", "https://openweathermap.org/img/wn/" + weatherPic + "@2x.png");
                 currentPicEl.setAttribute("alt", response.data.weather[0].description);
-                currentTempEl.innerHTML = "Temperature: " + k2f(response.data.main.temp) + " &#176F";
+                //currentTempEl.innerHTML = "Temperature: " + k2f(response.data.main.temp) + " &#176F";
+                currentTempEl.innerHTML = "Temperature: " + k2c(response.data.main.temp) + " &#176C";
+
                 currentHumidityEl.innerHTML = "Humidity: " + response.data.main.humidity + "%";
                 currentWindEl.innerHTML = "Wind Speed: " + response.data.wind.speed + " MPH";
                 
@@ -115,10 +117,13 @@ function initPage() {
         searchHistory = [];
         renderSearchHistory();
     })
+function k2c(K) {
+    return Math.floor(K - 273.15);
+}
 
-    function k2f(K) {
+    /*function k2f(K) {
         return Math.floor((K - 273.15) * 1.8 + 32);
-    }
+    }*/
 
     function renderSearchHistory() {
         historyEl.innerHTML = "";

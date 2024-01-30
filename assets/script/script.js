@@ -1,3 +1,5 @@
+// This function initializes the page by setting up event listeners,
+// retrieving search history from local storage, and rendering search history.
 function initPage() {
     // Getting references to various HTML elements
     const cityEl = document.getElementById("enter-city");
@@ -44,7 +46,7 @@ function initPage() {
                 currentHumidityEl.innerHTML = "Humidity: " + response.data.main.humidity + "%";
                 currentWindEl.innerHTML = "Wind Speed: " + response.data.wind.speed + " MPH";
 
-                // Get UV Index
+                // Retrieving UV Index
                 let lat = response.data.coord.lat;
                 let lon = response.data.coord.lon;
                 let UVQueryURL = "https://api.openweathermap.org/data/2.5/uvi/forecast?lat=" + lat + "&lon=" + lon + "&appid=" + APIKey + "&cnt=1";
@@ -52,7 +54,7 @@ function initPage() {
                     .then(function (response) {
                         let UVIndex = document.createElement("span");
 
-                        // Assigning appropriate class based on UV Index value
+                        // Having to assign appropriate class based on UV Index value
                         if (response.data[0].value < 4) {
                             UVIndex.setAttribute("class", "badge badge-success");
                         } else if (response.data[0].value < 8) {
@@ -66,7 +68,7 @@ function initPage() {
                         currentUVEl.append(UVIndex);
                     });
 
-                // Get 5 day forecast for this city
+                // Determine 5 day forecast for the wanted city
                 let cityID = response.data.id;
                 let forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?id=" + cityID + "&appid=" + APIKey;
                 axios.get(forecastQueryURL)
@@ -87,7 +89,7 @@ function initPage() {
                             forecastDateEl.innerHTML = forecastMonth + "/" + forecastDay + "/" + forecastYear;
                             forecastEls[i].append(forecastDateEl);
 
-                            // Icon for current weather
+                            // Displaying icon for current weather
                             const forecastWeatherEl = document.createElement("img");
                             forecastWeatherEl.setAttribute("src", "https://openweathermap.org/img/wn/" + response.data.list[forecastIndex].weather[0].icon + "@2x.png");
                             forecastWeatherEl.setAttribute("alt", response.data.list[forecastIndex].weather[0].description);
@@ -115,13 +117,13 @@ function initPage() {
         renderSearchHistory();
     })
 
-    // Clear History button
+    //Event listener for search button click & Clear History button
     clearEl.addEventListener("click", function () {
         localStorage.clear();
         searchHistory = [];
         renderSearchHistory();
     })
-
+// Function to render search history.
     function renderSearchHistory() {
         historyEl.innerHTML = "";
         for (let i = 0; i < searchHistory.length; i++) {
@@ -136,8 +138,9 @@ function initPage() {
             historyEl.append(historyItem);
         }
     }
-
+// Render search history when the page loads
     renderSearchHistory();
+     // Fetch weather for the last searched city if history exists
     if (searchHistory.length > 0) {
         getWeather(searchHistory[searchHistory.length - 1]);
     }
